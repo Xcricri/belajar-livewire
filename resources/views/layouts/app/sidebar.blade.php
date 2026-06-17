@@ -3,6 +3,7 @@
 
 <head>
     @include('partials.head')
+
 </head>
 
 <body class="min-h-screen bg-white dark:bg-zinc-800">
@@ -18,6 +19,11 @@
                 <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                     wire:navigate>
                     {{ __('Dashboard') }}
+                </flux:sidebar.item>
+
+                <flux:sidebar.item icon="squares-2x2" :href="route('posts.index')"
+                    :current="request()->routeIs('posts.index')" wire:navigate>
+                    {{ __('Posts') }}
                 </flux:sidebar.item>
             </flux:sidebar.group>
         </flux:sidebar.nav>
