@@ -2,7 +2,6 @@
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\Attributes\Validate;
 use Illuminate\Support\Facades\Storage;
 use App\Livewire\Forms\PostsForm;
 
@@ -15,9 +14,8 @@ new class extends Component {
 
     public function mount(Post $post)
     {
-        $this->post = $post;
-        $this->form->title = $this->post->title;
-        $this->form->content = $this->post->content;
+        $this->form->title = $post->title;
+        $this->form->content = $post->content;
     }
 
     public function update()

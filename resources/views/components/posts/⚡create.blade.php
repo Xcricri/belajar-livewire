@@ -2,8 +2,8 @@
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Livewire\Attributes\Validate;
 use App\Livewire\Forms\PostsForm;
+
 use App\Models\Post;
 
 new class extends Component {
