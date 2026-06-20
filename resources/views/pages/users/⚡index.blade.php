@@ -2,9 +2,8 @@
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Str;
 
-use App\Models\Post;
+use App\Models\User;
 
 new class extends Component {
     use WithPagination;
@@ -12,28 +11,27 @@ new class extends Component {
     // Delete function
     public function delete($id)
     {
-        $post = Post::findOrFail($id);
+        $user = User::findOrFail($id);
 
-        if ($post->image && file_exists(storage_path('app/public/posts/' . $post->image))) {
-            unlink(storage_path('app/public/posts/' . $post->image));
+        if ($user->avatar && file_exists(storage_path('app/public/users/' . $user->avatar))) {
+            unlink(storage_path('app/public/users/' . $user->avatar));
         }
 
         // Delete data
-        $post->delete();
+        $user->delete();
 
-        // flash message
-        session()->flash('message', 'Post deleted successfully.');
+        session()->flash('message', 'User deleted successfully.');
     }
 
     // Render function
     public function render()
     {
-        return $this->view([
-            // Get all posts with latest pagination
-            'posts' => Post::latest()->paginate(5),
-        ])
+        return $this->view(
+            // Get all users with pagination
+            ['users' => User::paginate(10)],
+        )
             ->layout('layouts::app')
-            ->title('Post List');
+            ->title('Users List');
     }
 };
 ?>
@@ -45,14 +43,14 @@ new class extends Component {
         {{-- Header --}}
         <div class="flex items-center justify-between">
             <div class="space-y-1">
-                <flux:heading size="lg" class="font-bold">Post List</flux:heading>
+                <flux:heading size="lg" class="font-bold">Users List</flux:heading>
                 <div class="text-sm">
-                    Manage all your posts in one place
+                    Manage all your users in one place
                 </div>
             </div>
 
-            <flux:button as="a" href="/posts/create" variant="primary" wire:navigate>
-                Create Post
+            <flux:button as="a" href="/users/create" variant="primary" wire:navigate>
+                Create User
             </flux:button>
         </div>
 
@@ -70,13 +68,13 @@ new class extends Component {
                 <flux:table.columns>
                     <flux:table.column class="w-20">Number</flux:table.column>
                     <flux:table.column>Image</flux:table.column>
-                    <flux:table.column>Title</flux:table.column>
-                    <flux:table.column>Content</flux:table.column>
+                    <flux:table.column>Name</flux:table.column>
+                    <flux:table.column>Email</flux:table.column>
                     <flux:table.column class="text-center w-40">Actions</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
-                    @forelse ($posts as $item)
+                    @forelse ($users as $item)
                         <flux:table.row class="align-middle hover:bg-gray-100/10 transition">
 
                             <flux:table.cell>
@@ -85,34 +83,32 @@ new class extends Component {
 
                             {{-- Image --}}
                             <flux:table.cell>
-                                <img src="{{ asset('/storage/posts/' . $item->image) }}" alt="{{ $item->title }}"
-                                    class="h-12 w-12 rounded-lg object-cover">
+                                <img src="{{ asset('/storage/users/' . $item->avatar) }}" alt="{{ $item->name }}"
+                                    class="h-12 w-12 rounded-full object-cover">
                             </flux:table.cell>
 
-                            {{-- Title --}}
+                            {{-- Name --}}
                             <flux:table.cell class="font-semibold text-gray-900">
-                                {{ $item->title }}
+                                {{ $item->name }}
                             </flux:table.cell>
 
-                            {{-- Content --}}
+                            {{-- Email --}}
                             <flux:table.cell class="text-gray-600">
-                                <div class="line-clamp-2">
-                                    {{ Str::limit($item->content, 100) }}
-                                </div>
+                                {{ $item->email }}
                             </flux:table.cell>
 
                             {{-- Actions --}}
                             <flux:table.cell>
                                 <div class="flex items-center justify-center gap-2">
 
-                                    <flux:button as="a" href="/posts/edit/{{ $item->id }}" size="sm"
+                                    <flux:button as="a" href="/users/edit/{{ $item->id }}" size="sm"
                                         wire:navigate>
                                         Edit
                                     </flux:button>
 
                                     <flux:button size="sm" variant="danger" x-data
                                         x-on:click.prevent="
-                                            if (confirm('Yakin ingin menghapus post ini?')) {
+                                            if (confirm('Yakin ingin menghapus user ini?')) {
                                                 $wire.delete({{ $item->id }})
                                             }
                                         ">
@@ -128,14 +124,14 @@ new class extends Component {
                         {{-- Empty state --}}
                         <flux:table.row>
                             <flux:table.cell colspan="4" class="py-14 text-center">
-                                <div class="flex flex-col items-center gap-3 text-gray-500">
+                                <div class="flex flex-col items-center gap-3">
                                     <div class="text-sm">
-                                        Belum ada post yang dibuat
+                                        Belum ada user yang dibuat
                                     </div>
 
-                                    <flux:button as="a" href="/posts/create" size="sm" variant="primary"
+                                    <flux:button as="a" href="/users/create" size="sm" variant="primary"
                                         wire:navigate>
-                                        + Buat Post Pertama
+                                        + Buat User Pertama
                                     </flux:button>
                                 </div>
                             </flux:table.cell>
@@ -148,7 +144,7 @@ new class extends Component {
 
         {{-- Pagination --}}
         <div class="flex justify-end">
-            {{ $posts->links() }}
+            {{ $users->links() }}
         </div>
 
     </flux:card>

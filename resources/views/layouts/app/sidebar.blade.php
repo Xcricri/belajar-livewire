@@ -21,6 +21,11 @@
                     {{ __('Dashboard') }}
                 </flux:sidebar.item>
 
+                <flux:sidebar.item icon="user" :href="route('users.index')"
+                    :current="request()->routeIs('users.index')" wire:navigate>
+                    {{ __('Users') }}
+                </flux:sidebar.item>
+
                 <flux:sidebar.item icon="squares-2x2" :href="route('posts.index')"
                     :current="request()->routeIs('posts.index')" wire:navigate>
                     {{ __('Posts') }}
