@@ -18,6 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::livewire('/create', 'pages::users.create')->name('create');
         Route::livewire('/edit/{id}', 'pages::users.edit')->name('edit');
     });
+
+    Route::livewire('/count', 'pages::count.create')->name('count.create');
 });
 
 
