@@ -72,7 +72,9 @@ new class extends Component {
     // Rendering
     public function render()
     {
-        return $this->view()->layout("layouts::app")->title("Create User");
+        return $this->view()
+            ->layout("layouts::dashboard")
+            ->title("Create User");
     }
 };
 ?>

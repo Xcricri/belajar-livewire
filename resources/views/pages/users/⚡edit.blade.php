@@ -79,7 +79,7 @@ new class extends Component {
 
     public function render()
     {
-        return $this->view()->layout("layouts::app")->title("Edit User");
+        return $this->view()->layout("layouts::dashboard")->title("Edit User");
     }
 };
 ?>
@@ -138,7 +138,7 @@ new class extends Component {
                             @elseif ($user->avatar)
                                 {{-- Existing Image --}}
                                 <img
-                                    src="{{ asset('storage/avatars/' . $user->avatar) }}"
+                                    src="{{ asset('storage/' . $user->avatar) }}"
                                     class="w-full h-full object-cover"
                                 />
                             @else

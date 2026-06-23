@@ -3,13 +3,14 @@
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Url;
 
 use App\Models\Post;
 
 new class extends Component {
     use WithPagination;
 
-    #[url(history: true)]
+    #[Url(history: true)]
     public $search = "";
 
     public function updatingSearch()
@@ -50,7 +51,7 @@ new class extends Component {
         return $this->view([
             "posts" => $posts,
         ])
-            ->layout("layouts::app")
+            ->layout("layouts::dashboard")
             ->title("Post List");
     }
 };

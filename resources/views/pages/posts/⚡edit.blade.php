@@ -73,7 +73,7 @@ new class extends Component {
 
     public function render()
     {
-        return $this->view()->layout("layouts::app")->title("Edit Post");
+        return $this->view()->layout("layouts::dashboard")->title("Edit Post");
     }
 };
 ?>
@@ -129,7 +129,7 @@ new class extends Component {
                             @else
                                 {{-- Gambar Lama dari Database --}}
                                 <img
-                                    src="{{ asset('storage/posts/' . $post->image) }}"
+                                    src="{{ asset('storage/' . $post->image) }}"
                                     alt="{{ $post->title }}"
                                     class="w-full h-full object-cover"
                                 />

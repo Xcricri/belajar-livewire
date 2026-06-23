@@ -91,10 +91,12 @@
             </flux:sidebar.item>
         </flux:sidebar.nav>
 
-        <x-desktop-user-menu
-            class="hidden lg:block"
-            :name="auth()->user()->name"
-        />
+        @auth
+            <x-desktop-user-menu
+                class="hidden lg:block"
+                :name="auth()->user()->name"
+            />
+        @endauth
     </flux:sidebar>
 
     <!-- Mobile User Menu -->
@@ -104,10 +106,12 @@
         <flux:spacer />
 
         <flux:dropdown position="top" align="end">
-            <flux:profile
-                :initials="auth()->user()->initials()"
-                icon-trailing="chevron-down"
-            />
+            @auth
+                <flux:profile
+                    :initials="auth()->user()->initials()"
+                    icon-trailing="chevron-down"
+                />
+            @endauth
 
             <flux:menu>
                 <flux:menu.radio.group>
@@ -115,22 +119,30 @@
                         <div
                             class="flex items-center gap-2 px-1 py-1.5 text-start text-sm"
                         >
-                            <flux:avatar
-                                :name="auth()->user()->name"
-                                :initials="auth()->user()->initials()"
-                            />
+                            @auth
+                                <flux:avatar
+                                    :name="auth()->user()->name"
+                                    :initials="auth()->user()->initials()"
+                                />
+                            @endauth
 
                             <div
                                 class="grid flex-1 text-start text-sm leading-tight"
                             >
-                                <flux:heading class="truncate">{{
-                                    auth()->user()
-                                        ->name
-                                }}</flux:heading>
-                                <flux:text class="truncate">{{
-                                    auth()->user()
-                                        ->email
-                                }}</flux:text>
+                                @auth
+                                    <flux:heading class="truncate">
+                                        {{
+                                            auth()->user()
+                                                ->name
+                                        }}
+                                    </flux:heading>
+                                    <flux:text class="truncate">
+                                        {{
+                                            auth()->user()
+                                                ->email
+                                        }}
+                                    </flux:text>
+                                @endauth
                             </div>
                         </div>
                     </div>

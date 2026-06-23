@@ -2,13 +2,14 @@
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\Attributes\Url;
 
 use App\Models\User;
 
 new class extends Component {
     use WithPagination;
 
-    #[url(history: true)]
+    #[Url(history: true)]
     public $search = "";
 
     public function updatingSearch()
@@ -48,7 +49,7 @@ new class extends Component {
         return $this->view([
             "users" => $users,
         ])
-            ->layout("layouts::app")
+            ->layout("layouts::dashboard")
             ->title("Users List");
     }
 };
