@@ -93,7 +93,7 @@ new class extends Component {
             class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4"
         >
             <div>
-                <flux:heading size="xl" level="1">Edit User</flux:heading>
+                <flux:heading size="lg">Edit User</flux:heading>
                 <flux:subheading class="mt-1"
                     >Update informasi user</flux:subheading
                 >
