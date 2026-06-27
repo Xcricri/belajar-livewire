@@ -3,7 +3,7 @@
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
-
+use Livewire\Attributes\Computed;
 use App\Models\Category;
 
 new class extends Component {
@@ -12,9 +12,10 @@ new class extends Component {
     #[Url(history: true)]
     public $search = '';
 
-    public function updatingSearch()
+    #[Computed]
+    public function categories()
     {
-        $this->resetPage();
+        return Category::search($this->search)->paginate(5);
     }
 
     public function delete($id)
@@ -27,13 +28,8 @@ new class extends Component {
 
     public function render()
     {
-        $category = Category::query()
-            ->when($this->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%");
-            })
-            ->paginate(5);
         return $this->view([
-            'categories' => $category,
+            'categories' => $this->categories,
         ])
             ->layout('layouts::dashboard')
             ->title('Categories');

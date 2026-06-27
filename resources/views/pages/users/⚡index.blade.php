@@ -3,6 +3,7 @@
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+use Livewire\Attributes\Computed;
 
 use App\Models\User;
 
@@ -12,9 +13,10 @@ new class extends Component {
     #[Url(history: true)]
     public $search = '';
 
-    public function updatingSearch()
+    #[Computed]
+    public function users()
     {
-        $this->resetPage();
+        return User::search($this->search)->paginate(10);
     }
 
     // Delete function
@@ -35,14 +37,8 @@ new class extends Component {
     // Render function
     public function render()
     {
-        $users = User::query()
-            ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')->orWhere('email', 'like', '%' . $this->search . '%');
-            })
-            ->paginate(10);
-
         return $this->view([
-            'users' => $users,
+            'users' => $this->users,
         ])
             ->layout('layouts::dashboard')
             ->title('Users List');

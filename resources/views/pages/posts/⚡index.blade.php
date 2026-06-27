@@ -18,9 +18,17 @@ new class extends Component {
     public $statusFilter = 'active';
 
     #[Computed]
-    public function updatingSearch()
+    public function posts()
     {
-        return Post::search($this->search)->get();
+        return Post::search($this->search)
+            ->query(function ($query) {
+                if ($this->statusFilter === 'trashed') {
+                    $query->onlyTrashed();
+                } elseif ($this->statusFilter === 'all') {
+                    $query->withTrashed();
+                }
+            })
+            ->paginate(10);
     }
 
     // Soft delete
@@ -59,22 +67,8 @@ new class extends Component {
     // Render function
     public function render()
     {
-        $query = Post::query();
-
-        if ($this->statusFilter === 'trashed') {
-            $query = Post::onlyTrashed();
-        } elseif ($this->statusFilter === 'all') {
-            $query = Post::withTrashed();
-        }
-
-        $posts = $query
-            ->when($this->search, function ($q) {
-                $q->where('title', 'like', '%' . $this->search . '%')->orWhere('content', 'like', '%' . $this->search . '%');
-            })
-            ->paginate(10);
-
         return $this->view([
-            'posts' => $posts,
+            'posts' => $this->posts,
         ])
             ->layout('layouts::dashboard')
             ->title('Post List');

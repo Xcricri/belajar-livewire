@@ -4,6 +4,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Url;
+use Livewire\Attributes\Computed;
 
 use App\Models\Page;
 
@@ -16,9 +17,18 @@ new class extends Component {
     #[Url]
     public $statusFilter = 'active';
 
-    public function updatingSearch()
+    #[Computed]
+    public function pages()
     {
-        $this->resetPage();
+        return Page::search($this->search)
+            ->query(function ($query) {
+                if ($this->statusFilter === 'trashed') {
+                    $query->onlyTrashed();
+                } elseif ($this->statusFilter === 'all') {
+                    $query->withTrashed();
+                }
+            })
+            ->paginate(5);
     }
 
     // Soft delete method
@@ -53,22 +63,8 @@ new class extends Component {
     // render method
     public function render()
     {
-        $query = Page::query();
-
-        if ($this->statusFilter === 'trashed') {
-            $query = Page::onlyTrashed();
-        } elseif ($this->statusFilter === 'all') {
-            $query = Page::withTrashed();
-        }
-
-        $pages = $query
-            ->when($this->search, function ($q) {
-                return $q->where('title', 'like', "%{$this->search}%");
-            })
-            ->paginate(10);
-
         return $this->view([
-            'pages' => $pages,
+            'pages' => $this->pages,
         ])
             ->layout('layouts::dashboard')
             ->title('Edit page');
@@ -164,7 +160,7 @@ new class extends Component {
                                         </flux:button>
                                     @else
                                         {{-- Edit page --}}
-                                        <flux:button as="a" href="/admin/pages/edit/{{ $item->id }}"
+                                        <flux:button as="a" href="/admin/pages/edit/{{ $item->slug }}"
                                             size="sm" wire:navigate>
                                             Edit
                                         </flux:button>

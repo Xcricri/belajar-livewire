@@ -36,8 +36,6 @@ new class extends Component {
     {
         $this->validate();
 
-        $avatarName = null;
-
         // Handle Avatar Upload
         if ($this->avatar) {
             // Delete existing avatar if it exists
