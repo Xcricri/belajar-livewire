@@ -49,7 +49,7 @@ class Page extends Model
      * Summary of users
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<User, Page>
      */
-    public function users()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
