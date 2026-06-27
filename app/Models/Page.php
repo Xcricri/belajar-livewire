@@ -2,25 +2,26 @@
 
 namespace App\Models;
 
-use App\Models\Category;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Post extends Model
+class Page extends Model
 {
     use SoftDeletes;
-
     protected $fillable = [
-        'image',
         'title',
+        'slug',
+        'image',
         'content',
-        'category_id'
+        'user_id'
     ];
 
-    protected $dates = ['deleted_at'];
+    protected $dates = [
+        'deleted_at'
+    ];
 
-    public function category()
+    public function users()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(User::class);
     }
 }

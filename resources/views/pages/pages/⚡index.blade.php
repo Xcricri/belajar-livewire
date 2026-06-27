@@ -3,10 +3,9 @@
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Str;
-use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 
-use App\Models\Post;
+use App\Models\Page;
 
 new class extends Component {
     use WithPagination;
@@ -17,70 +16,66 @@ new class extends Component {
     #[Url]
     public $statusFilter = 'active';
 
-    #[Computed]
     public function updatingSearch()
     {
-        return Post::search($this->search)->get();
+        $this->resetPage();
     }
 
-    // Soft delete
+    // Soft delete method
     public function softDelete($id)
     {
-        $post = Post::findOrFail($id);
-        $post->delete();
-        session()->flash('message', 'Post berhasil dipindahkan ke sampah.');
+        $page = Page::find($id);
+        $page->delete();
+        session()->flash('message', 'Page deleted successfully.');
     }
 
-    // Force delete
+    // Force delete method
     public function forceDelete($id)
     {
-        $post = Post::withTrashed()->findOrFail($id);
-
-        if ($post->image && file_exists(storage_path('app/public/posts/' . $post->image))) {
-            unlink(storage_path('app/public/posts/' . $post->image));
-        }
-
-        // Delete data
-        $post->forceDelete();
-
-        // flash message
-        session()->flash('message', 'Post deleted permanently successfully.');
+        $page = Page::withTrashed()->find($id);
+        $page->forceDelete();
+        session()->flash('message', 'Page permanently deleted.');
     }
 
-    // Restore delete
+    // Restore method
     public function restore($id)
     {
-        $post = Post::withTrashed()->findOrFail($id);
-        $post->restore();
+        $page = Page::withTrashed()->findorFail($id);
 
-        session()->flash('message', 'Post restored successfully.');
-    }
-
-    // Render function
-    public function render()
-    {
-        $query = Post::query();
-
-        if ($this->statusFilter === 'trashed') {
-            $query = Post::onlyTrashed();
-        } elseif ($this->statusFilter === 'all') {
-            $query = Post::withTrashed();
+        if ($page->image && file_exists(storage_path('app/public/pages/' . $page->image))) {
+            unlink(storage_path('app/public/pages/' . $page->image));
         }
 
-        $posts = $query
+        $page->restore();
+        session()->flash('message', 'Page restored successfully.');
+    }
+
+    // render method
+    public function render()
+    {
+        $query = Page::query();
+
+        if ($this->statusFilter === 'trashed') {
+            $query = Page::onlyTrashed();
+        } elseif ($this->statusFilter === 'all') {
+            $query = Page::withTrashed();
+        }
+
+        $pages = $query
             ->when($this->search, function ($q) {
-                $q->where('title', 'like', '%' . $this->search . '%')->orWhere('content', 'like', '%' . $this->search . '%');
+                return $q->where('title', 'like', "%{$this->search}%");
             })
             ->paginate(10);
 
         return $this->view([
-            'posts' => $posts,
+            'pages' => $pages,
         ])
             ->layout('layouts::dashboard')
-            ->title('Post List');
+            ->title('Edit page');
     }
 };
 ?>
+
 
 <div class="max-w-7xl mx-auto py-10">
     <flux:card class="p-6 space-y-6">
@@ -91,12 +86,12 @@ new class extends Component {
                 <flux:heading size="lg" class="font-bold">
                     Post List
                 </flux:heading>
-                <p class="text-sm">Kelola semua post Anda di satu tempat</p>
+                <p class="text-sm">Kelola semua page Anda di satu tempat</p>
             </div>
 
             {{-- Actions --}}
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <flux:input class="w-full sm:w-72" placeholder="Cari post..." wire:model.live="search" />
+                <flux:input class="w-full sm:w-72" placeholder="Cari page..." wire:model.live="search" />
 
                 {{-- Filter Status (Soft Delete) --}}
                 <select wire:model.live="statusFilter"
@@ -106,8 +101,8 @@ new class extends Component {
                     <option value="all">Semua</option>
                 </select>
 
-                <flux:button as="a" href="/admin/posts/create" variant="primary" wire:navigate>
-                    Buat Post
+                <flux:button as="a" href="/admin/pages/create" variant="primary" wire:navigate>
+                    Buat Page
                 </flux:button>
             </div>
         </div>
@@ -130,7 +125,7 @@ new class extends Component {
                 </flux:table.columns>
 
                 <flux:table.rows>
-                    @forelse ($posts as $item)
+                    @forelse ($pages as $item)
                         <flux:table.row
                             class="align-middle hover:bg-gray-100/10 transition {{ $item->trashed() ? 'bg-red-50/30 dark:bg-red-950/10' : '' }}">
                             <flux:table.cell>
@@ -168,8 +163,8 @@ new class extends Component {
                                             Hapus Permanen
                                         </flux:button>
                                     @else
-                                        {{-- Edit post --}}
-                                        <flux:button as="a" href="/admin/posts/edit/{{ $item->id }}"
+                                        {{-- Edit page --}}
+                                        <flux:button as="a" href="/admin/pages/edit/{{ $item->id }}"
                                             size="sm" wire:navigate>
                                             Edit
                                         </flux:button>
@@ -188,12 +183,12 @@ new class extends Component {
                             <flux:table.cell colspan="4" class="py-14 text-center">
                                 <div class="flex flex-col items-center gap-3">
                                     <div class="text-sm">
-                                        Belum ada posts yang dibuat
+                                        Belum ada pages yang dibuat
                                     </div>
 
-                                    <flux:button as="a" href="/admin/posts/create" size="sm"
+                                    <flux:button as="a" href="/admin/pages/create" size="sm"
                                         variant="primary" wire:navigate>
-                                        + Buat Post Pertama
+                                        + Buat Page Pertama
                                     </flux:button>
                                 </div>
                             </flux:table.cell>
@@ -204,7 +199,7 @@ new class extends Component {
         </div>
 
         {{-- Pagination --}}
-        <div class="flex justify-end">{{ $posts->links() }}</div>
+        <div class="flex justify-end">{{ $pages->links() }}</div>
     </flux:card>
 
     {{-- Confirm Delete Modal (Soft Delete) --}}
@@ -213,7 +208,7 @@ new class extends Component {
             <div>
                 <flux:heading size="lg">Pindahkan ke Sampah?</flux:heading>
                 <flux:subheading>
-                    Post ini akan dipindahkan ke folder sampah dan tidak muncul di publik.
+                    Page ini akan dipindahkan ke folder sampah dan tidak muncul di publik.
                 </flux:subheading>
             </div>
 

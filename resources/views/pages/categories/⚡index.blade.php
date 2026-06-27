@@ -1,9 +1,10 @@
 <?php
 
 use Livewire\Component;
-use App\Models\Category;
 use Livewire\WithPagination;
 use Livewire\Attributes\Url;
+
+use App\Models\Category;
 
 new class extends Component {
     use WithPagination;
@@ -28,7 +29,7 @@ new class extends Component {
     {
         $category = Category::query()
             ->when($this->search, function ($query, $search) {
-                $query->where('name', 'like', "%{$search}%");
+                $query->where('name', 'like', "%{$search}%")->orWhere('description', 'like', "%{$search}%");
             })
             ->paginate(5);
         return $this->view([
@@ -55,8 +56,7 @@ new class extends Component {
 
             {{-- Actions --}}
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <flux:input class="w-full sm:w-72" placeholder="Cari kategori..."
-                    wire:model.live.debounce.500ms="search" />
+                <flux:input class="w-full sm:w-72" placeholder="Cari kategori..." wire:model.live="search" />
 
                 <flux:button as="a" href="/admin/categories/create" variant="primary" wire:navigate>
                     Buat Kategori

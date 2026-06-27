@@ -14,8 +14,10 @@ new class extends Component {
     // Add method
     public function add()
     {
-        $this->todos[] = $this->todo; // Ketika variable todo di isi, tambahkan ke array todos
-        $this->reset('todo'); // Mereset variable todo
+        if ($this->todo) {
+            $this->todos[] = $this->todo; // Ketika variable todo di isi, tambahkan ke array todos
+            $this->reset('todo'); // Mereset variable todo
+        }
     }
 
     // Edit method
@@ -64,7 +66,7 @@ new class extends Component {
 };
 ?>
 <div class="max-w-7xl mx-auto p-6">
-    <div class="rounded-xl shadow-md p-6 space-y-5">
+    <div class="rounded-xl shadow-md p-6 space-y-5 bg-[#3d3d3d]">
 
         <div>
             <h1 class="text-xl font-bold ">
@@ -74,7 +76,7 @@ new class extends Component {
 
         <div class="flex gap-3">
             <input type="text" wire:model="todo" placeholder="Tambahkan todo..."
-                class="flex-1 rounded-lg border border-gray-100/10 px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200 outline-none">
+                class="flex-1 rounded-lg border border-gray-100 px-4 py-2 focus:border-blue-500 focus:ring focus:ring-blue-200 outline-none">
 
             @if ($editingIndex !== null)
                 <button wire:click="save"
@@ -100,7 +102,7 @@ new class extends Component {
                         <div class="flex gap-3">
                             <button wire:click="toggle({{ $loop->index }})"
                                 class="px-3 py-1.5 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition data-loading:opacity-50">
-                                Toggle
+                                Completed
                             </button>
                             <button wire:click="edit({{ $loop->index }})"
                                 class="px-3 py-1.5 text-sm bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition data-loading:opacity-50">

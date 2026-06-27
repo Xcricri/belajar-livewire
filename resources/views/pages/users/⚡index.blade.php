@@ -64,7 +64,7 @@ new class extends Component {
 
             {{-- Actions --}}
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <flux:input class="w-full sm:w-72" placeholder="Cari user..." wire:model.live.debounce.500ms="search" />
+                <flux:input class="w-full sm:w-72" placeholder="Cari user..." wire:model.live="search" />
 
                 <flux:button as="a" href="/admin/users/create" variant="primary" wire:navigate>
                     Buat User

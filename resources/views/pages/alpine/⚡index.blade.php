@@ -17,7 +17,7 @@ new class extends Component {
             <h1 class="text-3xl font-bold" x-text="message"></h1>
             <x-heroicon-s-bolt class="w-5 h-5 text-yellow-500" />
         </div>
-        <p class="mt-2">Penggunaan alpine.js dalam laravel</p>
+        <p class="mt-2">Penggunaan alpine.js dalam livewire</p>
     </div>
 
     <!-- Counter -->
@@ -48,7 +48,7 @@ new class extends Component {
     <div x-data="{
         search: '',
         items: ['foo', 'bar', 'baz'],
-    
+
         get filteredItems() {
             return this.items.filter((item) =>
                 item.toLowerCase().includes(this.search.toLowerCase()),

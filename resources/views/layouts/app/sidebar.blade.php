@@ -25,6 +25,11 @@
                     {{ __('Users') }}
                 </flux:sidebar.item>
 
+                <flux:sidebar.item icon="newspaper" :href="route('pages.index')"
+                    :current="request()->routeIs('pages.index')" wire:navigate>
+                    {{ __('Pages') }}
+                </flux:sidebar.item>
+
                 <flux:sidebar.item icon="squares-2x2" :href="route('categories.index')"
                     :current="request()->routeIs('categories.index')" wire:navigate>
                     {{ __('Categories') }}

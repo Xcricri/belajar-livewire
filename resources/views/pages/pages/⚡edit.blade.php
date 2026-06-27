@@ -1,95 +1,102 @@
 <?php
 
-use App\Models\Post;
-use App\Models\Category;
 use Livewire\Component;
-use Livewire\WithFileUploads;
+use App\Models\Page;
+use App\Models\User;
 use Livewire\Attributes\Validate;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Format;
+use Illuminate\Support\Str;
 
 new class extends Component {
     use WithFileUploads;
 
-    public Post $post;
+    public Page $page;
+
+    public $slug;
+
+    #[Validate('required|string|max:255')]
+    public $title = '';
 
     #[Validate('nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048')]
     public $image;
 
-    #[Validate('required')]
-    public $title;
+    #[Validate('nullable|string')]
+    public $content = '';
 
-    #[Validate('required')]
-    public $content;
+    #[Validate('required|exists:users,id')]
+    public $user_id = '';
 
-    #[Validate('required|exists:categories,id')]
-    public $category_id = '';
-
-    public function mount($id)
+    // Mount method
+    public function mount($slug)
     {
-        $this->post = Post::findOrFail($id);
-
-        // set default value from database
-        $this->title = $this->post->title;
-        $this->content = $this->post->content;
-        $this->category_id = $this->post->category_id;
+        $this->page = Page::where('slug', $slug)->firstOrFail();
+        $this->title = $this->page->title;
+        $this->content = $this->page->content;
+        $this->user_id = $this->page->user_id;
     }
 
+    // Update method
     public function update()
     {
         $this->validate();
 
-        // if upload new image, replace image
         if ($this->image) {
-            // delete old image
-            Storage::disk('public')->delete('posts/' . $this->post->image);
+            // Delete old image
+            Storage::disk('public')->delete($this->page->image);
 
-            $manager = ImageManager::usingDriver(Driver::class);
+            $manager = ImageManager::usingDriver(new Driver());
 
             $image = $manager->decodePath($this->image->getRealPath());
 
-            $webpEncoded = $image->encodeUsingFormat(Format::WEBP, quality: 80);
+            $webpEncode = $image->encodeUsingFormat(Format::WEBP, quality: 80);
 
-            $imagePath = 'posts/' . pathinfo($this->image->hashName(), PATHINFO_FILENAME) . '.webp';
+            $imagePath = 'pages/' . pathinfo($this->image->getRealPath(), PATHINFO_FILENAME) . '.webp';
 
-            Storage::disk('public')->put($imagePath, $webpEncoded);
+            // Save Image
+            Storage::disk('public')->put($imagePath, $webpEncode);
         } else {
-            $imagePath = $this->post->image;
+            $imagePath = $this->page->image;
         }
 
-        // update to database
-        $this->post->update([
-            'image' => $imagePath,
+        $created_slug = Str::slug($this->title);
+
+        $this->page->update([
             'title' => $this->title,
+            'slug' => $created_slug,
+            'image' => $imagePath,
             'content' => $this->content,
-            'category_id' => $this->category_id,
+            'user_id' => $this->user_id,
         ]);
 
-        session()->flash('message', 'Post berhasil diperbarui.');
+        session()->flash('message', 'Page berhasil diperbarui.');
 
-        return redirect()->route('posts.index');
+        return redirect()->route('pages.index');
     }
 
+    // Render method
     public function render()
     {
         return $this->view([
-            'categories' => Category::all(),
+            'users' => User::all(),
         ])
             ->layout('layouts::dashboard')
-            ->title('Edit Post');
+            ->title('Edit Page');
     }
 };
 ?>
+
 
 <div class="max-w-7xl mx-auto py-10">
     <flux:card class="space-y-6 shadow-sm border border-zinc-200/50 dark:border-zinc-800/50">
         {{-- Header --}}
         <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
             <div>
-                <flux:heading size="lg">Edit Post</flux:heading>
-                <flux:subheading class="mt-1">Perbarui detail informasi dan media untuk artikel
+                <flux:heading size="lg">Edit Page</flux:heading>
+                <flux:subheading class="mt-1">Perbarui detail informasi dan media untuk halaman
                     ini.</flux:subheading>
             </div>
         </div>
@@ -118,7 +125,7 @@ new class extends Component {
                                     class="w-full h-full object-cover" />
                             @else
                                 {{-- Gambar Lama dari Database --}}
-                                <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}"
+                                <img src="{{ asset('storage/' . $page->image) }}" alt="{{ $page->title }}"
                                     class="w-full h-full object-cover" />
                             @endif
                         </div>
@@ -144,9 +151,9 @@ new class extends Component {
                     <flux:field>
                         <flux:label>Kategori</flux:label>
                         <flux:select wire:model="category_id" placeholder="Pilih kategori..." clearable>
-                            @foreach ($categories as $cat)
-                                <flux:select.option value="{{ $cat->id }}">
-                                    {{ $cat->name }}
+                            @foreach ($users as $user)
+                                <flux:select.option value="{{ $user->id }}">
+                                    {{ $user->name }}
                                 </flux:select.option>
                             @endforeach
                         </flux:select>
@@ -156,14 +163,14 @@ new class extends Component {
                     {{-- Title --}}
                     <flux:field>
                         <flux:label>Title</flux:label>
-                        <flux:input wire:model="title" placeholder="Masukkan judul post..." clearable />
+                        <flux:input wire:model="title" placeholder="Masukkan judul page..." clearable />
                         <flux:error name="title" />
                     </flux:field>
 
                     {{-- Content --}}
                     <flux:field>
                         <flux:label>Content</flux:label>
-                        <flux:textarea wire:model="content" rows="9" placeholder="Tulis isi artikel..."
+                        <flux:textarea wire:model="content" rows="9" placeholder="Tulis isi halaman..."
                             resize="none" />
                         <flux:error name="content" />
                     </flux:field>
@@ -174,12 +181,12 @@ new class extends Component {
 
             {{-- Actions --}}
             <div class="flex items-center justify-end gap-3">
-                <flux:button href="{{ route('posts.index') }}" variant="ghost" wire:navigate>
+                <flux:button href="{{ route('pages.index') }}" variant="ghost" wire:navigate>
                     Cancel
                 </flux:button>
 
                 <flux:button type="submit" variant="primary" wire:loading.attr="disabled" class="min-w-25">
-                    <span wire:loading.remove wire:target="update">Update Post</span>
+                    <span wire:loading.remove wire:target="update">Update Page</span>
                     <span wire:loading wire:target="update">Mengupdate...</span>
                 </flux:button>
             </div>

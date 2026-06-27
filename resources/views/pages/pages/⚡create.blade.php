@@ -1,74 +1,77 @@
 <?php
 
-use App\Models\Post;
-use App\Models\Category;
 use Livewire\Component;
-use Livewire\WithFileUploads;
+use App\Models\Page;
+use App\Models\User;
 use Livewire\Attributes\Validate;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Format;
+use Illuminate\Support\Str;
 
 new class extends Component {
     use WithFileUploads;
 
+    public $slug;
+
+    #[Validate('required|string|max:255')]
+    public $title = '';
+
     #[Validate('required|image|mimes:jpeg,png,jpg,gif,webp|max:2048')]
     public $image;
 
-    #[Validate('required')]
-    public $title;
+    #[Validate('nullable|string')]
+    public $content = '';
 
-    #[Validate('required')]
-    public $content;
+    #[Validate('required|exists:users,id')]
+    public $user_id = '';
 
-    #[Validate('required|exists:categories,id')]
-    public $category_id = '';
-
+    // Store method
     public function store()
     {
         $this->validate();
 
-        // Store image
         if ($this->image) {
-            // Initialize ImageManager
-            $manager = ImageManager::usingDriver(Driver::class);
+            $manager = ImageManager::usingDriver(new Driver());
 
-            // Decode the uploaded image
             $image = $manager->decodePath($this->image->getRealPath());
 
-            // Encode format webp
-            $webpEncoded = $image->encodeUsingFormat(Format::WEBP, quality: 80);
+            $webpEncode = $image->encodeUsingFormat(Format::WEBP, quality: 80);
 
-            // Generate image name
-            $imagePath = 'posts/' . pathinfo($this->image->hashName(), PATHINFO_FILENAME) . '.webp';
+            $imagePath = 'pages/' . pathinfo($this->image->getRealPath(), PATHINFO_FILENAME) . '.webp';
 
-            // Save image
-            Storage::disk('public')->put($imagePath, $webpEncoded);
+            // Save Image
+            Storage::disk('public')->put($imagePath, $webpEncode);
         }
 
-        // insert data
-        Post::create([
-            'image' => $imagePath,
+        $created_slug = Str::slug($this->title);
+
+        // Create page
+        Page::create([
             'title' => $this->title,
+            'slug' => $created_slug,
+            'image' => $imagePath,
             'content' => $this->content,
-            'category_id' => $this->category_id,
+            'user_id' => $this->user_id,
         ]);
 
-        // flash message
-        session()->flash('message', 'Post berhasil dibuat.');
+        // Session flash
+        session()->flash('message', 'Page created successfully.');
 
-        // redirect to index
-        return redirect()->route('posts.index');
+        // Redirect
+        return redirect()->route('pages.index');
     }
 
+    // Render method
     public function render()
     {
         return $this->view([
-            'categories' => Category::all(),
+            'users' => User::all(),
         ])
             ->layout('layouts::dashboard')
-            ->title('Create Post');
+            ->title('Create Page');
     }
 };
 ?>
@@ -78,8 +81,8 @@ new class extends Component {
         {{-- Header --}}
         <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
             <div>
-                <flux:heading size="lg">Buat Post</flux:heading>
-                <flux:subheading class="mt-1">Tombol untuk menambahkan artikel baru beserta detailnya.
+                <flux:heading size="lg">Buat Page</flux:heading>
+                <flux:subheading class="mt-1">Tombol untuk menambahkan halaman baru beserta detailnya.
                 </flux:subheading>
             </div>
         </div>
@@ -126,28 +129,28 @@ new class extends Component {
                 <div class="lg:col-span-7 space-y-4">
                     {{-- Category --}}
                     <flux:field>
-                        <flux:label>Kategori</flux:label>
-                        <flux:select wire:model="category_id" placeholder="Pilih kategori..." clearable>
-                            @foreach ($categories as $cat)
-                                <flux:select.option value="{{ $cat->id }}">
-                                    {{ $cat->name }}
+                        <flux:label>Pengguna</flux:label>
+                        <flux:select wire:model="user_id" placeholder="Pilih pengguna..." clearable>
+                            @foreach ($users as $user)
+                                <flux:select.option value="{{ $user->id }}">
+                                    {{ $user->name }}
                                 </flux:select.option>
                             @endforeach
                         </flux:select>
-                        <flux:error name="category_id" />
+                        <flux:error name="user_id" />
                     </flux:field>
 
                     {{-- Title --}}
                     <flux:field>
                         <flux:label>Judul</flux:label>
-                        <flux:input wire:model="title" placeholder="Masukkan judul post..." clearable />
+                        <flux:input wire:model="title" placeholder="Masukkan judul page..." clearable />
                         <flux:error name="title" />
                     </flux:field>
 
                     {{-- Content --}}
                     <flux:field>
                         <flux:label>Konten</flux:label>
-                        <flux:textarea wire:model="content" rows="9" placeholder="Tulis isi artikel..."
+                        <flux:textarea wire:model="content" rows="9" placeholder="Tulis isi page..."
                             resize="none" />
                         <flux:error name="content" />
                     </flux:field>
@@ -158,12 +161,12 @@ new class extends Component {
 
             {{-- Actions / Buttons --}}
             <div class="flex items-center justify-end gap-3">
-                <flux:button href="{{ route('posts.index') }}" variant="ghost" wire:navigate>
+                <flux:button href="{{ route('pages.index') }}" variant="ghost" wire:navigate>
                     Batal
                 </flux:button>
 
                 <flux:button type="submit" variant="primary" wire:loading.attr="disabled" class="min-w-25">
-                    <span wire:loading.remove wire:target.enter="store">Simpan Post</span>
+                    <span wire:loading.remove wire:target.enter="store">Simpan Page</span>
                     <span wire:loading wire:target="store">Menyimpan...</span>
                 </flux:button>
             </div>
