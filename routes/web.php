@@ -16,7 +16,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::livewire('/edit/{id}', 'pages::users.edit')->name('edit');
     });
 
-
     // Posts route
     Route::prefix('admin/posts')->name('posts.')->group(function () {
         Route::livewire('/', 'pages::posts.index')->name('index');
@@ -37,10 +36,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::livewire('/create', 'pages::pages.create')->name('create');
         Route::livewire('/edit/{slug}', 'pages::pages.edit')->name('edit');
     });
-
-    // Other route
-    Route::livewire('admin/alpine', 'pages::alpine.index')->name('alpine.index');
-    Route::livewire('admin/todos', 'pages::todos.index')->name('todos.index');
 });
 
 

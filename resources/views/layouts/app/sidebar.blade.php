@@ -40,16 +40,6 @@
                     {{ __('Posts') }}
                 </flux:sidebar.item>
 
-                <flux:sidebar.item icon="clipboard-document-check" :href="route('todos.index')"
-                    :current="request()->routeIs('todos.index')" wire:navigate>
-                    {{ __('Todos') }}
-                </flux:sidebar.item>
-
-                <flux:sidebar.item icon="bolt" :href="route('alpine.index')"
-                    :current="request()->routeIs('alpine.index')" wire:navigate>
-                    {{ __('Alpine.js') }}
-                </flux:sidebar.item>
-
             </flux:sidebar.group>
         </flux:sidebar.nav>
 
