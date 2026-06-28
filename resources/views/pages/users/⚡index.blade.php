@@ -11,37 +11,41 @@ new class extends Component {
     use WithPagination;
 
     #[Url(history: true)]
-    public $search = '';
+    public $search = "";
 
+    // search method
     #[Computed]
     public function users()
     {
-        return User::search($this->search)->paginate(10);
+        return User::search($this->search)->paginate(5);
     }
 
-    // Delete function
+    // Delete method
     public function delete($id)
     {
         $user = User::findOrFail($id);
 
-        if ($user->avatar && file_exists(storage_path('app/public/users/' . $user->avatar))) {
-            unlink(storage_path('app/public/users/' . $user->avatar));
+        if (
+            $user->avatar &&
+            file_exists(storage_path("app/public/users/" . $user->avatar))
+        ) {
+            unlink(storage_path("app/public/users/" . $user->avatar));
         }
 
         // Delete data
         $user->delete();
 
-        session()->flash('message', 'User deleted successfully.');
+        session()->flash("message", "User deleted successfully.");
     }
 
-    // Render function
+    // Render method
     public function render()
     {
         return $this->view([
-            'users' => $this->users,
+            "users" => $this->users,
         ])
-            ->layout('layouts::dashboard')
-            ->title('Users List');
+            ->layout("layouts::dashboard")
+            ->title("Users List");
     }
 };
 ?>
@@ -49,7 +53,9 @@ new class extends Component {
 <div class="max-w-7xl mx-auto py-10">
     <flux:card class="p-6 space-y-6">
         {{-- Header --}}
-        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div
+            class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        >
             {{-- Title --}}
             <div>
                 <flux:heading size="lg" class="font-bold">
@@ -60,18 +66,31 @@ new class extends Component {
 
             {{-- Actions --}}
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <flux:input class="w-full sm:w-72" placeholder="Cari user..." wire:model.live="search" />
+                <flux:input
+                    class="w-full sm:w-72"
+                    placeholder="Cari user..."
+                    wire:model.live.debounce.300ms="search"
+                />
 
-                <flux:button as="a" href="/admin/users/create" variant="primary" wire:navigate>
+                <flux:button
+                    as="a"
+                    href="/admin/users/create"
+                    variant="primary"
+                    wire:navigate
+                >
                     Buat User
                 </flux:button>
             </div>
         </div>
 
         {{-- Flash image --}}
-        @if (session()->has('message'))
+        @if (session()->has("message"))
             <flux:callout variant="success">
-                {{ session('message') }}
+                {{
+                    session(
+                        "message",
+                    )
+                }}
             </flux:callout>
         @endif
 
@@ -84,24 +103,32 @@ new class extends Component {
                     <flux:table.column>Nama</flux:table.column>
                     <flux:table.column>Email</flux:table.column>
                     <flux:table.column class="text-center w-40">
-                        Actions</flux:table.column>
+                        Actions</flux:table.column
+                    >
                 </flux:table.columns>
 
                 <flux:table.rows>
                     @forelse ($users as $item)
-                        <flux:table.row class="align-middle hover:bg-gray-100/10 transition">
+                        <flux:table.row
+                            class="align-middle hover:bg-gray-100/10 transition"
+                        >
                             <flux:table.cell>
                                 {{ $loop->iteration }}
                             </flux:table.cell>
 
                             {{-- Image --}}
                             <flux:table.cell>
-                                <img src="{{ asset('/storage/' . $item->avatar) }}" alt="{{ $item->name }}"
-                                    class="h-12 w-12 rounded-full object-cover" />
+                                <img
+                                    src="{{ asset('/storage/' . $item->avatar) }}"
+                                    alt="{{ $item->name }}"
+                                    class="h-12 w-12 rounded-full object-cover"
+                                />
                             </flux:table.cell>
 
                             {{-- Name --}}
-                            <flux:table.cell class="font-semibold text-gray-900">
+                            <flux:table.cell
+                                class="font-semibold text-gray-900"
+                            >
                                 {{ $item->name }}
                             </flux:table.cell>
 
@@ -112,15 +139,24 @@ new class extends Component {
 
                             {{-- Actions --}}
                             <flux:table.cell>
-                                <div class="flex items-center justify-center gap-2">
-                                    <flux:button as="a" href="/admin/users/edit/{{ $item->id }}"
-                                        size="sm" wire:navigate>
+                                <div
+                                    class="flex items-center justify-center gap-2"
+                                >
+                                    <flux:button
+                                        as="a"
+                                        href="/admin/users/edit/{{ $item->id }}"
+                                        size="sm"
+                                        wire:navigate
+                                    >
                                         Edit
                                     </flux:button>
 
-                                    <flux:button size="sm" variant="danger"
+                                    <flux:button
+                                        size="sm"
+                                        variant="danger"
                                         x-on:click="targetId = {{ $item->id }};
-                                        $flux.modal('confirm-delete').show()">
+                                        $flux.modal('confirm-delete').show()"
+                                    >
                                         Hapus
                                     </flux:button>
                                 </div>
@@ -129,14 +165,22 @@ new class extends Component {
                     @empty
                         {{-- Empty state --}}
                         <flux:table.row>
-                            <flux:table.cell colspan="4" class="py-14 text-center">
+                            <flux:table.cell
+                                colspan="4"
+                                class="py-14 text-center"
+                            >
                                 <div class="flex flex-col items-center gap-3">
                                     <div class="text-sm">
                                         Belum ada user yang dibuat
                                     </div>
 
-                                    <flux:button as="a" href="/admin/users/create" size="sm"
-                                        variant="primary" wire:navigate>
+                                    <flux:button
+                                        as="a"
+                                        href="/admin/users/create"
+                                        size="sm"
+                                        variant="primary"
+                                        wire:navigate
+                                    >
                                         + Buat User Pertama
                                     </flux:button>
                                 </div>
@@ -157,7 +201,8 @@ new class extends Component {
             <div>
                 <flux:heading size="lg">Hapus User?</flux:heading>
                 <flux:subheading>
-                    Apakah Anda yakin ingin menghapus user ini? Tindakan ini tidak dapat dibatalkan.
+                    Apakah Anda yakin ingin menghapus user ini? Tindakan ini
+                    tidak dapat dibatalkan.
                 </flux:subheading>
             </div>
 
@@ -166,8 +211,13 @@ new class extends Component {
                     <flux:button variant="ghost">Batal</flux:button>
                 </flux:modal.close>
 
-                <flux:button variant="danger"
-                    x-on:click="$wire.delete(targetId); $flux.modal('confirm-delete').close()">
+                <flux:button
+                    variant="danger"
+                    x-on:click="
+                        $wire.delete(targetId);
+                        $flux.modal('confirm-delete').close();
+                    "
+                >
                     Ya, Hapus
                 </flux:button>
             </div>

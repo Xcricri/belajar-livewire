@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Fortify\Contracts\PasskeyUser;
 use Laravel\Fortify\PasskeyAuthenticatable;
@@ -60,6 +61,13 @@ class User extends Authenticatable implements PasskeyUser
             'name' => $this->name,
             'email' => $this->email,
         ];
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        return $this->avatar
+            ? Storage::url($this->avatar)
+            : '';
     }
 
     /**

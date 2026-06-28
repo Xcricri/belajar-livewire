@@ -12,19 +12,19 @@ new class extends Component {
     use WithPagination;
 
     #[Url(history: true)]
-    public $search = '';
+    public $search = "";
 
     #[Url]
-    public $statusFilter = 'active';
+    public $statusFilter = "active";
 
     #[Computed]
     public function pages()
     {
         return Page::search($this->search)
             ->query(function ($query) {
-                if ($this->statusFilter === 'trashed') {
+                if ($this->statusFilter === "trashed") {
                     $query->onlyTrashed();
-                } elseif ($this->statusFilter === 'all') {
+                } elseif ($this->statusFilter === "all") {
                     $query->withTrashed();
                 }
             })
@@ -36,7 +36,7 @@ new class extends Component {
     {
         $page = Page::find($id);
         $page->delete();
-        session()->flash('message', 'Page deleted successfully.');
+        session()->flash("message", "Page deleted successfully.");
     }
 
     // Force delete method
@@ -44,7 +44,7 @@ new class extends Component {
     {
         $page = Page::withTrashed()->find($id);
         $page->forceDelete();
-        session()->flash('message', 'Page permanently deleted.');
+        session()->flash("message", "Page permanently deleted.");
     }
 
     // Restore method
@@ -52,31 +52,35 @@ new class extends Component {
     {
         $page = Page::withTrashed()->findorFail($id);
 
-        if ($page->image && file_exists(storage_path('app/public/pages/' . $page->image))) {
-            unlink(storage_path('app/public/pages/' . $page->image));
+        if (
+            $page->image &&
+            file_exists(storage_path("app/public/pages/" . $page->image))
+        ) {
+            unlink(storage_path("app/public/pages/" . $page->image));
         }
 
         $page->restore();
-        session()->flash('message', 'Page restored successfully.');
+        session()->flash("message", "Page restored successfully.");
     }
 
     // render method
     public function render()
     {
         return $this->view([
-            'pages' => $this->pages,
+            "pages" => $this->pages,
         ])
-            ->layout('layouts::dashboard')
-            ->title('Edit page');
+            ->layout("layouts::dashboard")
+            ->title("Edit page");
     }
 };
 ?>
 
-
 <div class="max-w-7xl mx-auto py-10">
     <flux:card class="p-6 space-y-6">
         {{-- Header --}}
-        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div
+            class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        >
             {{-- Title --}}
             <div>
                 <flux:heading size="lg" class="font-bold">
@@ -87,26 +91,41 @@ new class extends Component {
 
             {{-- Actions --}}
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <flux:input class="w-full sm:w-72" placeholder="Cari page..." wire:model.live="search" />
+                <flux:input
+                    class="w-full sm:w-72"
+                    placeholder="Cari page..."
+                    wire:model.live.debounce.300ms="search"
+                />
 
                 {{-- Filter Status (Soft Delete) --}}
-                <select wire:model.live="statusFilter"
-                    class="rounded-lg border-gray-300 text-sm py-2.5 px-3 dark:bg-zinc-800 dark:border-zinc-700">
+                <select
+                    wire:model.live="statusFilter"
+                    class="rounded-lg border-gray-300 text-sm py-2.5 px-3 dark:bg-zinc-800 dark:border-zinc-700"
+                >
                     <option value="active">Aktif</option>
                     <option value="trashed">Sampah</option>
                     <option value="all">Semua</option>
                 </select>
 
-                <flux:button as="a" href="/admin/pages/create" variant="primary" wire:navigate>
+                <flux:button
+                    as="a"
+                    href="/admin/pages/create"
+                    variant="primary"
+                    wire:navigate
+                >
                     Buat Page
                 </flux:button>
             </div>
         </div>
 
         {{-- Flash message --}}
-        @if (session()->has('message'))
+        @if (session()->has("message"))
             <flux:callout variant="success">
-                {{ session('message') }}
+                {{
+                    session(
+                        "message",
+                    )
+                }}
             </flux:callout>
         @endif
 
@@ -117,56 +136,79 @@ new class extends Component {
                     <flux:table.column class="w-20">Nomor</flux:table.column>
                     <flux:table.column>Gambar</flux:table.column>
                     <flux:table.column>Judul</flux:table.column>
-                    <flux:table.column class="text-center w-48">Actions</flux:table.column>
+                    <flux:table.column class="text-center w-48">
+                        Actions</flux:table.column
+                    >
                 </flux:table.columns>
 
                 <flux:table.rows>
                     @forelse ($pages as $item)
                         <flux:table.row
-                            class="align-middle hover:bg-gray-100/10 transition {{ $item->trashed() ? 'bg-red-50/30 dark:bg-red-950/10' : '' }}">
+                            class="align-middle hover:bg-gray-100/10 transition {{ $item->trashed() ? 'bg-red-50/30 dark:bg-red-950/10' : '' }}"
+                        >
                             <flux:table.cell>
                                 {{ $loop->iteration }}
                             </flux:table.cell>
 
                             {{-- Image --}}
                             <flux:table.cell>
-                                <img src="{{ asset('/storage/' . $item->image) }}" alt="{{ $item->title }}"
-                                    class="h-12 w-12 rounded-lg object-cover" />
+                                <img
+                                    src="{{ asset('/storage/' . $item->image) }}"
+                                    alt="{{ $item->title }}"
+                                    class="h-12 w-12 rounded-lg object-cover"
+                                />
                             </flux:table.cell>
 
                             {{-- Title --}}
-                            <flux:table.cell class="font-semibold text-gray-900 dark:text-zinc-100">
+                            <flux:table.cell
+                                class="font-semibold text-gray-900 dark:text-zinc-100"
+                            >
                                 {{ $item->title }}
                                 @if ($item->trashed())
                                     <span
-                                        class="ml-2 text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded dark:bg-red-900 dark:text-red-200">Terhapus</span>
+                                        class="ml-2 text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded dark:bg-red-900 dark:text-red-200"
+                                        >Terhapus</span
+                                    >
                                 @endif
                             </flux:table.cell>
 
                             {{-- Actions --}}
                             <flux:table.cell>
-                                <div class="flex items-center justify-center gap-2">
+                                <div
+                                    class="flex items-center justify-center gap-2"
+                                >
                                     @if ($item->trashed())
                                         {{-- Restore post --}}
-                                        <flux:button size="sm" variant="ghost"
-                                            wire:click="restore({{ $item->id }})">
+                                        <flux:button
+                                            size="sm"
+                                            variant="ghost"
+                                            wire:click="restore({{ $item->id }})"
+                                        >
                                             Restore
                                         </flux:button>
-
                                         {{-- Force Delete (Permanent) --}}
-                                        <flux:button size="sm" variant="danger"
-                                            x-on:click="targetId = {{ $item->id }}; $flux.modal('confirm-force-delete').show()">
+                                        <flux:button
+                                            size="sm"
+                                            variant="danger"
+                                            x-on:click="targetId = {{ $item->id }}; $flux.modal('confirm-force-delete').show()"
+                                        >
                                             Hapus Permanen
                                         </flux:button>
                                     @else
                                         {{-- Edit page --}}
-                                        <flux:button as="a" href="/admin/pages/edit/{{ $item->slug }}"
-                                            size="sm" wire:navigate>
+                                        <flux:button
+                                            as="a"
+                                            href="/admin/pages/edit/{{ $item->slug }}"
+                                            size="sm"
+                                            wire:navigate
+                                        >
                                             Edit
                                         </flux:button>
-
-                                        <flux:button size="sm" variant="danger"
-                                            x-on:click="targetId = {{ $item->id }}; $flux.modal('confirm-delete').show()">
+                                        <flux:button
+                                            size="sm"
+                                            variant="danger"
+                                            x-on:click="targetId = {{ $item->id }}; $flux.modal('confirm-delete').show()"
+                                        >
                                             Delete
                                         </flux:button>
                                     @endif
@@ -176,14 +218,22 @@ new class extends Component {
                     @empty
                         {{-- Empty state --}}
                         <flux:table.row>
-                            <flux:table.cell colspan="4" class="py-14 text-center">
+                            <flux:table.cell
+                                colspan="4"
+                                class="py-14 text-center"
+                            >
                                 <div class="flex flex-col items-center gap-3">
                                     <div class="text-sm">
                                         Belum ada pages yang dibuat
                                     </div>
 
-                                    <flux:button as="a" href="/admin/pages/create" size="sm"
-                                        variant="primary" wire:navigate>
+                                    <flux:button
+                                        as="a"
+                                        href="/admin/pages/create"
+                                        size="sm"
+                                        variant="primary"
+                                        wire:navigate
+                                    >
                                         + Buat Page Pertama
                                     </flux:button>
                                 </div>
@@ -204,7 +254,8 @@ new class extends Component {
             <div>
                 <flux:heading size="lg">Pindahkan ke Sampah?</flux:heading>
                 <flux:subheading>
-                    Page ini akan dipindahkan ke folder sampah dan tidak muncul di publik.
+                    Page ini akan dipindahkan ke folder sampah dan tidak muncul
+                    di publik.
                 </flux:subheading>
             </div>
 
@@ -213,8 +264,13 @@ new class extends Component {
                     <flux:button variant="ghost">Batal</flux:button>
                 </flux:modal.close>
 
-                <flux:button variant="danger"
-                    x-on:click="$wire.softDelete(targetId); $flux.modal('confirm-delete').close()">
+                <flux:button
+                    variant="danger"
+                    x-on:click="
+                        $wire.softDelete(targetId);
+                        $flux.modal('confirm-delete').close();
+                    "
+                >
                     Ya, Pindahkan
                 </flux:button>
             </div>
@@ -227,8 +283,8 @@ new class extends Component {
             <div>
                 <flux:heading size="lg">Hapus Permanen?</flux:heading>
                 <flux:subheading>
-                    Apakah Anda yakin? Tindakan ini akan menghapus data dari database selamanya dan tidak bisa
-                    dikembalikan.
+                    Apakah Anda yakin? Tindakan ini akan menghapus data dari
+                    database selamanya dan tidak bisa dikembalikan.
                 </flux:subheading>
             </div>
 
@@ -237,8 +293,13 @@ new class extends Component {
                     <flux:button variant="ghost">Batal</flux:button>
                 </flux:modal.close>
 
-                <flux:button variant="danger"
-                    x-on:click="$wire.forceDelete(targetId); $flux.modal('confirm-force-delete').close()">
+                <flux:button
+                    variant="danger"
+                    x-on:click="
+                        $wire.forceDelete(targetId);
+                        $flux.modal('confirm-force-delete').close();
+                    "
+                >
                     Ya, Hapus Selamanya
                 </flux:button>
             </div>

@@ -10,38 +10,42 @@ new class extends Component {
     use WithPagination;
 
     #[Url(history: true)]
-    public $search = '';
+    public $search = "";
 
+    // Search method
     #[Computed]
     public function categories()
     {
         return Category::search($this->search)->paginate(5);
     }
 
+    // Delete method
     public function delete($id)
     {
         $category = Category::findOrFail($id);
         $category->delete();
 
-        session()->flash('message', 'Category deleted successfully.');
+        session()->flash("message", "Category deleted successfully.");
     }
 
+    // Render method
     public function render()
     {
         return $this->view([
-            'categories' => $this->categories,
+            "categories" => $this->categories,
         ])
-            ->layout('layouts::dashboard')
-            ->title('Categories');
+            ->layout("layouts::dashboard")
+            ->title("Categories");
     }
 };
 ?>
 
-
 <div class="max-w-7xl mx-auto py-10">
     <flux:card class="p-6 space-y-6">
         {{-- Header --}}
-        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div
+            class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
+        >
             {{-- Title --}}
             <div>
                 <flux:heading size="lg" class="font-bold">
@@ -52,18 +56,31 @@ new class extends Component {
 
             {{-- Actions --}}
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <flux:input class="w-full sm:w-72" placeholder="Cari kategori..." wire:model.live="search" />
+                <flux:input
+                    class="w-full sm:w-72"
+                    placeholder="Cari kategori..."
+                    wire:model.live.debounce.300ms="search"
+                />
 
-                <flux:button as="a" href="/admin/categories/create" variant="primary" wire:navigate>
+                <flux:button
+                    as="a"
+                    href="/admin/categories/create"
+                    variant="primary"
+                    wire:navigate
+                >
                     Buat Kategori
                 </flux:button>
             </div>
         </div>
 
         {{-- Flash image --}}
-        @if (session()->has('message'))
+        @if (session()->has("message"))
             <flux:callout variant="success">
-                {{ session('message') }}
+                {{
+                    session(
+                        "message",
+                    )
+                }}
             </flux:callout>
         @endif
 
@@ -75,37 +92,53 @@ new class extends Component {
                     <flux:table.column>Title</flux:table.column>
                     <flux:table.column>Description</flux:table.column>
                     <flux:table.column class="text-center w-40">
-                        Actions</flux:table.column>
+                        Actions</flux:table.column
+                    >
                 </flux:table.columns>
 
                 <flux:table.rows>
                     @forelse ($categories as $item)
-                        <flux:table.row class="align-middle hover:bg-gray-100/10 transition">
+                        <flux:table.row
+                            class="align-middle hover:bg-gray-100/10 transition"
+                        >
                             <flux:table.cell>
                                 {{ $loop->iteration }}
                             </flux:table.cell>
 
                             {{-- Title --}}
-                            <flux:table.cell class="font-semibold text-gray-900">
+                            <flux:table.cell
+                                class="font-semibold text-gray-900"
+                            >
                                 {{ $item->name }}
                             </flux:table.cell>
 
                             {{-- Description --}}
-                            <flux:table.cell class="font-semibold text-gray-900">
+                            <flux:table.cell
+                                class="font-semibold text-gray-900"
+                            >
                                 {{ $item->description }}
                             </flux:table.cell>
 
                             {{-- Actions --}}
                             <flux:table.cell>
-                                <div class="flex items-center justify-center gap-2">
-                                    <flux:button as="a" href="/admin/categories/edit/{{ $item->id }}"
-                                        size="sm" wire:navigate>
+                                <div
+                                    class="flex items-center justify-center gap-2"
+                                >
+                                    <flux:button
+                                        as="a"
+                                        href="/admin/categories/edit/{{ $item->id }}"
+                                        size="sm"
+                                        wire:navigate
+                                    >
                                         Edit
                                     </flux:button>
 
-                                    <flux:button size="sm" variant="danger"
+                                    <flux:button
+                                        size="sm"
+                                        variant="danger"
                                         x-on:click="targetId = {{ $item->id }};
-                                        $flux.modal('confirm-delete').show()">
+                                        $flux.modal('confirm-delete').show()"
+                                    >
                                         Delete
                                     </flux:button>
                                 </div>
@@ -114,14 +147,22 @@ new class extends Component {
                     @empty
                         {{-- Empty state --}}
                         <flux:table.row>
-                            <flux:table.cell colspan="4" class="py-14 text-center">
+                            <flux:table.cell
+                                colspan="4"
+                                class="py-14 text-center"
+                            >
                                 <div class="flex flex-col items-center gap-3">
                                     <div class="text-sm">
                                         Belum ada kategori yang dibuat
                                     </div>
 
-                                    <flux:button as="a" href="/admin/categories/create" size="sm"
-                                        variant="primary" wire:navigate>
+                                    <flux:button
+                                        as="a"
+                                        href="/admin/categories/create"
+                                        size="sm"
+                                        variant="primary"
+                                        wire:navigate
+                                    >
                                         + Buat Kategori Pertama
                                     </flux:button>
                                 </div>
@@ -142,7 +183,8 @@ new class extends Component {
             <div>
                 <flux:heading size="lg">Hapus Kategori?</flux:heading>
                 <flux:subheading>
-                    Apakah Anda yakin ingin menghapus kategori ini? Tindakan ini tidak dapat dibatalkan.
+                    Apakah Anda yakin ingin menghapus kategori ini? Tindakan ini
+                    tidak dapat dibatalkan.
                 </flux:subheading>
             </div>
 
@@ -151,8 +193,13 @@ new class extends Component {
                     <flux:button variant="ghost">Batal</flux:button>
                 </flux:modal.close>
 
-                <flux:button variant="danger"
-                    x-on:click="$wire.delete(targetId); $flux.modal('confirm-delete').close()">
+                <flux:button
+                    variant="danger"
+                    x-on:click="
+                        $wire.delete(targetId);
+                        $flux.modal('confirm-delete').close();
+                    "
+                >
                     Ya, Hapus
                 </flux:button>
             </div>
