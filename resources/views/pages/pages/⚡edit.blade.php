@@ -96,8 +96,12 @@ new class extends Component {
         <div class="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4">
             <div>
                 <flux:heading size="lg">Edit Page</flux:heading>
-                <flux:subheading class="mt-1">Perbarui detail informasi dan media untuk halaman
-                    ini.</flux:subheading>
+                <flux:subheading class="mt-1">
+                    Perbarui detail informasi dan media untuk halaman ini.
+                </flux:subheading>
+                <div class="p-4 mb-4 bg-red-500 text-white rounded" wire:offline>
+                    Koneksi internet Anda terputus. Beberapa fitur mungkin tidak berfungsi.
+                </div>
             </div>
         </div>
 
@@ -185,7 +189,8 @@ new class extends Component {
                     Cancel
                 </flux:button>
 
-                <flux:button type="submit" variant="primary" wire:loading.attr="disabled" class="min-w-25">
+                <flux:button type="submit" variant="primary"wire:offline.attr='disable' wire:loading.attr="disabled"
+                    class="min-w-25">
                     <span wire:loading.remove wire:target="update">Update Page</span>
                     <span wire:loading wire:target="update">Mengupdate...</span>
                 </flux:button>

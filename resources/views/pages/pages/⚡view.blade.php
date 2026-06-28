@@ -27,7 +27,7 @@ new class extends Component {
 ?>
 
 <div class="min-h-screen bg-[#0b0b0c] text-zinc-200">
-    <livewire:welcome.navbar />
+    <livewire:view.navbar />
 
     <main class="max-w-5xl px-6 py-12 mx-auto">
         <div class="mb-8">
@@ -72,5 +72,5 @@ new class extends Component {
         </div>
     </main>
 
-    <livewire:welcome.footer />
+    <livewire:view.footer />
 </div>

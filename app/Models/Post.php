@@ -39,6 +39,7 @@ class Post extends Model
             'id' => $this->id,
             'title' => $this->title,
             'content' => $this->content,
+            'category_id' => $this->category_id
         ];
     }
 

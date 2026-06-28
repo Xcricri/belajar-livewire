@@ -84,6 +84,9 @@ new class extends Component {
             <div>
                 <flux:heading size="lg">Edit User</flux:heading>
                 <flux:subheading class="mt-1">Update informasi user</flux:subheading>
+                <div class="p-4 mb-4 bg-red-500 text-white rounded" wire:offline>
+                    Koneksi internet Anda terputus. Beberapa fitur mungkin tidak berfungsi.
+                </div>
             </div>
         </div>
 
@@ -161,7 +164,8 @@ new class extends Component {
                     Batal
                 </flux:button>
 
-                <flux:button type="submit" variant="primary" wire:loading.attr="disabled" class="min-w-25">
+                <flux:button type="submit" variant="primary" wire:offline.attr='disable' wire:loading.attr="disabled"
+                    class="min-w-25">
                     <span wire:loading.remove wire:target="update">Update User</span>
                     <span wire:loading wire:target="update">Mengupdate...</span>
                 </flux:button>
